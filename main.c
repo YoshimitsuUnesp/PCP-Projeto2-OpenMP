@@ -22,7 +22,7 @@ double trapezoidal_integration(int nx, int ny, int num_threads) {
             integral += f(x, y);  
         }  
     }  
-      
+  
     integral *= dx * dy;  
     return integral;  
 }  
@@ -32,22 +32,36 @@ int main() {
     int intervals_y[] = {1000, 10000, 100000};  
     int threads[] = {1, 2, 4, 8};  
   
+    // Open file for writing results  
+    FILE *file = fopen("results.txt", "w");  
+    if (file == NULL) {  
+        printf("Error opening file!\n");  
+        return 1;  
+    }  
+  
     for (int t = 0; t < 4; t++) {  
         for (int i = 0; i < 3; i++) {  
             for (int j = 0; j < 3; j++) {  
                 int nx = intervals_x[i];  
                 int ny = intervals_y[j];  
                 int num_threads = threads[t];  
-                  
+  
                 double start_time = omp_get_wtime();  
                 double result = trapezoidal_integration(nx, ny, num_threads);  
                 double end_time = omp_get_wtime();  
-                  
+  
+                double execution_time = end_time - start_time;  
+  
                 printf("Threads: %d, Intervals: %dx%d, Result: %f, Time: %f seconds\n",  
-                       num_threads, nx, ny, result, end_time - start_time);  
+                       num_threads, nx, ny, result, execution_time);  
+                  
+                fprintf(file, "Threads: %d, Intervals: %dx%d, Result: %f, Time: %f seconds\n",  
+                        num_threads, nx, ny, result, execution_time);  
             }  
         }  
     }  
+  
+    fclose(file);  
   
     return 0;  
 }  
